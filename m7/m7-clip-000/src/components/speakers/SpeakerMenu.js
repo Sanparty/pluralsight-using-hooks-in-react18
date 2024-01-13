@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import AddSpeakerDialog from "./AddSpeakerDialog";
 import { SpeakerMenuContext } from "../contexts/SpeakerMenuContext";
+import { SpeakerModalProvider } from "../contexts/SpeakerModalContext";
 
 export default function SpeakerMenu() {
   const {
@@ -59,7 +60,9 @@ export default function SpeakerMenu() {
           </label>
         </div>
         <div className="input-group">
-          <AddSpeakerDialog />
+          <SpeakerModalProvider>
+            <AddSpeakerDialog />
+          </SpeakerModalProvider>
         </div>
       </div>
     </div>
