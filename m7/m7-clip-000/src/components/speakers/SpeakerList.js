@@ -1,10 +1,12 @@
 import SpeakerLine from "./SpeakerLine";
-import { useContext, useEffect, useReducer, useState, useCallback } from "react";
+import { useContext, useEffect, useReducer, useState, useCallback, useDeferredValue } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
 import axios from "axios";
 
 function List({ state, dispatch }) {
   const [updatingId, setUpdatingId] = useState(0);
+  const [searchName, setSearchName] = useState("");
+  const hilightChars = useDeferredValue(searchName);
   const isPending = false;
   const speakers = state.speakers;
 
@@ -33,8 +35,10 @@ function List({ state, dispatch }) {
           <div className="toolbar-trigger mb-3 flex-grow-04">
             <div className="toolbar-search w-100">
               <input
-                value=""
-                onChange={(event) => {}}
+                value={searchName}
+                onChange={(event) => {
+                  setSearchName(event.target.value);
+                }}
                 type="text"
                 className="form-control"
                 placeholder="Highlight Names"
@@ -51,7 +55,12 @@ function List({ state, dispatch }) {
 
       <div className="row g-3">
         {speakers.map(function (speakerRec) {
-          const highlight = false;
+          const highlight = 
+          
+          searchName?.length > 0 &&
+          (speakerRec.firstName?.toLowerCase() + speakerRec.lastName?.toLowerCase()).includes(hilightChars.toLowerCase()) 
+          ? true:false
+          ;
           return (
             <SpeakerLine
               key={speakerRec.id}
@@ -77,7 +86,7 @@ const SpeakerList = () => {
   function reducer(state, action) {
     switch (action.type) {
       case "speakersLoaded":
-        return { ...state, loading: false, speakers: action.speakers };
+        return { ...state, loading: false, speakers: [...action.speakers,...createDummySpeakers(8000)], };
       case "setLoadingStatus":
         return { ...state, loading: true };
       case "updateSpeaker":
@@ -123,3 +132,22 @@ const SpeakerList = () => {
 };
 
 export default SpeakerList;
+
+function createDummySpeakers(numToAdd) {
+  let speakers = [];
+  for (let increment = 1; increment < numToAdd; increment++) {
+    speakers.push({
+      id: 1000000 + increment,
+      firstName: `Craig${increment}`,
+      lastName: `Mantle${increment}`,
+      favorite: false,
+      bio: "bio",
+      company: "company",
+      twitterHandle: `Craig${increment}`,
+      userBioShort: `userBioShort${increment}`,
+      imageUrl: "",
+      email: `fakeEmail${increment}@codecamplnet`
+    }); 
+  };
+  return speakers;
+}
