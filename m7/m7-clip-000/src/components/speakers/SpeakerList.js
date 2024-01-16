@@ -1,13 +1,13 @@
 import SpeakerLine from "./SpeakerLine";
-import { useContext, useEffect, useReducer, useState, useCallback, useDeferredValue } from "react";
+import { useContext, useEffect, useReducer, useState, useCallback, useTransition } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
 import axios from "axios";
 
 function List({ state, dispatch }) {
   const [updatingId, setUpdatingId] = useState(0);
   const [searchName, setSearchName] = useState("");
-  const hilightChars = useDeferredValue(searchName);
-  const isPending = false;
+  const [highlightChars, setHighlightChars] = useState("");
+  const [isPending, startTransition] = useTransition();
   const speakers = state.speakers;
 
   function toggleFavoriteSpeaker(speakerRec) {
@@ -38,6 +38,9 @@ function List({ state, dispatch }) {
                 value={searchName}
                 onChange={(event) => {
                   setSearchName(event.target.value);
+                  startTransition(() => {
+                    setHighlightChars(event.target.value);
+                  })
                 }}
                 type="text"
                 className="form-control"
@@ -58,7 +61,7 @@ function List({ state, dispatch }) {
           const highlight = 
           
           searchName?.length > 0 &&
-          (speakerRec.firstName?.toLowerCase() + speakerRec.lastName?.toLowerCase()).includes(hilightChars.toLowerCase()) 
+          (speakerRec.firstName?.toLowerCase() + speakerRec.lastName?.toLowerCase()).includes(highlightChars.toLowerCase()) 
           ? true:false
           ;
           return (
@@ -86,7 +89,7 @@ const SpeakerList = () => {
   function reducer(state, action) {
     switch (action.type) {
       case "speakersLoaded":
-        return { ...state, loading: false, speakers: [...action.speakers,...createDummySpeakers(8000)], };
+        return { ...state, loading: false, speakers: [...action.speakers,...createDummySpeakers(1000)], };
       case "setLoadingStatus":
         return { ...state, loading: true };
       case "updateSpeaker":
